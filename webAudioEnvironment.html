@@ -2,7 +2,7 @@
 
 <html>
 	<head>
-		<link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700,300,700italic,400italic,300italic' rel='stylesheet' type='text/css'   >	
+		<link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700,300,700italic,400italic,300italic' rel='stylesheet' type='text/css'   >
 		<script src='jquery.js'></script>
 
 		<script src='jquery-ui.js'></script>
@@ -41,14 +41,18 @@ $(function() {
 
 
 	SVG = {
-		createCanvas : function( width, height, container ){
+		createCanvas : function( width, height, container, pos, z){
 			var canvas = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			canvas.setAttribute('width', width);
 			canvas.setAttribute('height', height);
+			//canvas.setAttribute('position', 'absolute');
+
 			canvas.setAttribute('pointer-events', 'none');
 			
-			var svgContain = $( '<div style="z-index: 1200; position: absolute;"></div>' );
-			container.append(svgContain)
+			var htmlstring = '<div style=" position: ' + pos + ' ", top: 0px, left: 0px, height: 0, z-index: ' + z + '></div>';
+			console.log (htmlstring);
+			var svgContain = $( htmlstring );
+			container.append(svgContain);
 			svgContain.append( canvas );    
 			return canvas;
 		},
@@ -73,17 +77,21 @@ $(function() {
 		}
 	}
 
-	var LineContext = function() {
+	var LineContext = function( pos, z) {
 		this.canvas = SVG.createCanvas (
 			$( '#app-window' ).width(),
 			$( '#app-window' ).height(),
-			$( '#app-window' )
+			$( '#app-window' ),
+			pos,
+			z
 		);
 		//console.log (this.canvas);
 	}
+	var foregroundLines = new LineContext('absolute', '1000');
+	var backgroundLines = new LineContext('absolute', '10');
 	
-	var liveLines = new LineContext();
-	$(liveLines.canvas).css('position', 'absolute');
+
+	//backgroundLines.canvas.css( top, 0);
 
 	//creates relevant button for each node type
 	$(' .create-node-button ').click ( function() {
@@ -91,107 +99,19 @@ $(function() {
 			$( this ).data().nodetype	
 		);
 	});
+	
+	function updateConnectingLine (origin, end, line) {
+		var y1 = origin.offset().top + origin.height()/2;
+		var x1 = origin.offset().left + origin.width()/2;
+		var y2 = end.offset().top + end.width()/2;
+		var x2 = end.offset().left + end.width()/2;
+		var appwindow = $( '#app-window' );
+	    var offy = appwindow.offset().top;
+		var offx = appwindow.offset().left;	
 
-	function createDragHandle (obj,title) {
-		//creates top bar to drag it by --no reference needed!
-		obj.controls.append ("<div class='drag-handle'>"+title+"</div>");
-		obj.controls.draggable({
-			containment: $( '#app-window' ),
-			handle: '.drag-handle',
-			stack: '.node-controls',
-			start: function() {
-				obj.controls.addClass('selected')
-			},
-			stop: function() {
-				obj.controls.removeClass('selected')
-			}
-		});
+		SVG.updateLine( line, x1-offx, y1-offy, x2-offx, y2-offy);
 	}
 
-	//this could be SO MUCH CLEANER YOU ARE REPEATING A BUNCH OF SHIT
-	//between this and the update
-	function drawLineFromOutputNotchToOutputHandle(outputHandle) {
-
-		//we have outputNotch (original position)
-		//and need outputHandle (new position)
-		var controls = outputHandle.parents('.node-controls');//.$('.node-controls');
-		var outputNotch = outputHandle.siblings('.output-notch');
-		var row = outputHandle.parent();
-
-		//console.log(outputHandle);
-
-
-		//console.log (outputNotch.position(), outputHandle.position(), controlWindow.position() );
-		//console.log (controlWindow.position() - outputNotch.position() )
-
-
-		var offsetX = row.position().left + controls.position().left;
-		var offsetY = row.position().top + controls.position().top;
-		var outputNotchX = outputNotch.position().left + outputNotch.width() + 4;
-		var outputNotchY = outputNotch.position().top + outputNotch.height()/2 - 4;
-		var outputHandleX = outputHandle.position().left + outputHandle.height()/2 - 4;
-		var outputHandleY = outputHandle.position().top + outputHandle.width()/2 - 4;
-		
-		//console.log (outputNotchX);
-
-		//console.log (outputHandleX + controlWindowX, outputHandleY + controlWindowY);
-
-		var endx = outputHandleX + offsetX;
-		var endy = outputHandleY + offsetY;
-
-		var originx = outputNotchX + offsetX;
-		var originy = outputNotchY + offsetY;
-
-		console.log (outputHandle.css('background'));
-
-		var line = SVG.createLine( originx, originy, endx, endy, outputHandle.css('background'), 4, 'true');
-
-		//CURRENTLY HARDCODED AS liveLines WATCH OUT
-		liveLines.canvas.aline = liveLines.canvas.appendChild(line);
-
-		//var line = "<line x1='" + originx + "' y1='" + originy + "' x2='" + endx + "' y2='" + endy + "' />";
-	}
-
-	function updateLineFromOutputNotchToOutputHandle(outputHandle, which) {
-
-		//we have outputNotch (original position)
-		//and need outputHandle (new position)
-		var controls = outputHandle.parents('.node-controls');//.$('.node-controls');
-		var outputNotch = outputHandle.siblings('.output-notch');
-		var row = outputHandle.parent();
-
-		//console.log(outputHandle);
-
-
-		//console.log (outputNotch.position(), outputHandle.position(), controlWindow.position() );
-		//console.log (controlWindow.position() - outputNotch.position() )
-
-
-		var offsetX = row.position().left + controls.position().left;
-		var offsetY = row.position().top + controls.position().top;
-		var outputNotchX = outputNotch.position().left + outputNotch.width() + 4;
-		var outputNotchY = outputNotch.position().top + outputNotch.height()/2 - 4;
-		var outputHandleX = outputHandle.position().left + outputHandle.height()/2 - 4;
-		var outputHandleY = outputHandle.position().top + outputHandle.width()/2 - 4;
-		
-		//console.log (outputNotchX);
-
-		//console.log (outputHandleX + controlWindowX, outputHandleY + controlWindowY);
-
-		var endx = outputHandleX + offsetX;
-		var endy = outputHandleY + offsetY;
-
-		var originx = outputNotchX + offsetX;
-		var originy = outputNotchY + offsetY;
-
-		//var line = SVG.createLine( originx, originy, endx, endy, 'black', 1);
-
-		//CURRENTLY HARDCODED AS liveLines WATCH OUT
-		//console.log (liveLines.canvas.aline);
-		SVG.updateLine(  liveLines.canvas.aline, originx, originy, endx, endy);
-
-		//var line = "<line x1='" + originx + "' y1='" + originy + "' x2='" + endx + "' y2='" + endy + "' />";
-	}
 
 
 	var GainNode = function() {
@@ -242,34 +162,110 @@ $(function() {
 			handle.draggable({
 			revertDuration: 200,
 			revert: function() {
-						
-						handle.updateLine = setInterval(function() {
-						updateLineFromOutputNotchToOutputHandle ( handle );
-						//console.log('weeeee');
-					}, .1);
-					return(true);
-				},
+				console.log ( 'revert ' + handle );
+				$(handle).removeClass('selected');
+
+					//passing values to active line
+				handle.updateLine = setInterval(function() {
+					var notch = handle.siblings( '.output-notch' ) [0];
+
+					updateConnectingLine (handle, $(notch) ,foregroundLines.canvas.aline);
+					console.log ( 'wheeee' );
+				}, 1);
+				console.log ('true');
+				return('true');
+			},
 				drag: function() {
-						updateLineFromOutputNotchToOutputHandle ( handle );
+						var notch = handle.siblings( '.output-notch' ) [0];
+						updateConnectingLine ( handle, $( notch ) ,foregroundLines.canvas.aline);
 				},
 				start: function() {
-					$(handle).parents('.node-controls ').css('z-index', '1500');
+					$(handle).parents('.node-controls ').css('z-index', '1500'); //whole parent can we make it just output handle?
 					$(handle).addClass('selected');
 
+					//going to have to do all this svg shit differently
 					var line = SVG.createLine( 0,0,0,0, $(handle).css('background-color'), 4, 'true'); //it gets updated right away anyway...
 
-					//CURRENTLY HARDCODED AS liveLines WATCH OUT
-					liveLines.canvas.aline = liveLines.canvas.appendChild(line);
+					//CURRENTLY HARDCODED AS foregroundLines WATCH OUT
+					foregroundLines.canvas.aline = foregroundLines.canvas.appendChild(line);
 
 				},
-				stop: function() {
-					//console.log('stop');
-					$(handle).removeClass('selected');
-					$(liveLines.canvas).empty();
-					//console.log(liveLines);
-					$(handle).parents('.node-controls ').css('z-index', 'inherit');
-					SVG.deleteLine( liveLines.canvas.aline );
+				stop: function(event, ui) {
+					console.log('stop');
+					$(handle).parents('.node-controls ').css('z-index', '999'); //whole parent can we make it just output handle?
+					$(foregroundLines.canvas).empty();					
 					clearInterval (handle.updateLine);
+				}
+			});
+		},
+		initInputHandle : function(handle) {
+			handle.droppable({
+				accept: '.output-handle',
+				activeClass : '.selected' ,
+				drop : function(event, ui) {
+
+					var outputHandle = ui.draggable;
+					//console.log(outputHandle.val);
+					//var style = outputHandle.css();
+					//console.log ( style);
+
+					//our output-handle is going to a foreign land
+					//we need to make sure it rememberswhere home is...
+					outputHandle.val('node-controls', outputHandle.parents('.node-controls' ) ); //store control window of parent
+					outputHandle.val('output-notch', outputHandle.siblings( '.output-notch' )[0] );
+					console.log ('HERE1' + outputHandle.val('output-notch')[0] );
+
+					//sloppy list of css to revert after we change parents...
+					//put this in an array and get it out of here!
+					bgcol = outputHandle.css ( 'background-color' );
+					col = outputHandle.css ( 'color' );
+					ff = outputHandle.css ( 'font-family' );
+					fs = outputHandle.css ( 'font-size' );
+					lh = outputHandle.css ( 'line-height' );
+					fw = outputHandle.css ( 'font-weight' );
+					fst = outputHandle.css ( 'font-style' );
+					shadow = '-5px 0px 10px 0px ' + bgcol;
+
+					//changing the parent to the input node we are connecting to...
+					outputHandle.appendTo (this);
+					outputHandle.css({ top : 9, left: 0});
+					outputHandle.draggable('option','revert','false');
+					outputHandle.draggable('destroy');
+					outputHandle.removeClass('selected');
+					//outputHandle.css( style );
+
+					//re-render handle style there must be a better way ughughgu
+					outputHandle.css( 'background-color', bgcol );
+					outputHandle.css( 'color', col );	
+					outputHandle.css( 'font-family', ff );
+					outputHandle.css( 'font-size', fs );	
+					outputHandle.css( 'line-height', lh );
+					outputHandle.css( 'font-weight', fw );;
+					outputHandle.css( 'font-style', fs );	
+
+					outputHandle.css( '-webkit-box-shadow', shadow);
+					
+					//made it!!
+					//lets draw a line to celebrate!
+
+					//get these foreground lines out of my way
+					$(foregroundLines.canvas).empty();
+					//and draw some nice background lines instead
+					var line = SVG.createLine( 0,0,100,100, bgcol, 1, 'true'); //it gets updated right away anyway...
+					backgroundLines.canvas.appendChild(line);
+					outputHandle.val( 'line', line );
+					//console.log (line);
+
+					console.log ('HERE' + outputHandle.val ( 'output-notch') );
+
+					updateConnectingLine (outputHandle, outputHandle.val ( 'output-notch' ), line)
+
+					//outputHandle.
+					console.log('drop');
+					//ui.draggable.draggable('option','revert','false');
+				},
+				over : function(event) {
+					console.log (this);
 				}
 			});
 		},
@@ -285,6 +281,8 @@ $(function() {
 					controls.css('opacity', '0.8');
 					controls.addClass('selected');
 				},
+				drag: function() {
+				},
 				stop: function() {
 					controls.css('opacity', '1');
 					controls.removeClass('selected');
@@ -297,11 +295,20 @@ $(function() {
 			var input = true;
 			var output = true;
 			var symbol = false;
+			var cssString = 'color: magenta'
 
 			switch(type) {
 				case ('freq') :
 					symbol ='&#402;';
 					symbol ='&#402;';
+
+					cssString = (
+					"background: slategrey, " +
+					"color: white, " +
+					"padding: none, " +
+					"font-family: inherit, " +
+					"font-style: italic ");
+
 
 					break;
 				case ('gain') :
@@ -331,6 +338,9 @@ $(function() {
 
 				row.inputHandle = $( "<div class ='input-handle noselect'>"+ symbol + "</div>" );
 				row.append (row.inputHandle);
+				row.inputHandle.css({ cssString });
+
+				NodeOp.initInputHandle (row.inputHandle);
 			}
 
 			if (symbol == '<bold>I</bold>') {
@@ -346,8 +356,10 @@ $(function() {
 				row.append (row.outputNotch);
 
 				//creates a handle we can drag an output out of
-				row.outputHandle = $( "<div class ='output-handle'>" + symbol + "</div>" );
+				row.outputHandle = $( "<div class ='output-handle noselect'>" + symbol + "</div>" );
+				console.log(row.outputHandle);
 				row.append(row.outputHandle);
+				row.outputHandle.css({ cssString });
 
 				//THIS could be done better!!
 				NodeOp.initOutputHandle (row.outputHandle);

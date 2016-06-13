@@ -20,6 +20,7 @@ body {
 	font-weight: 300;
 
 	text-rendering: optimizeLegibility;
+
 }
 
 
@@ -39,14 +40,14 @@ body {
 
 }
 .node-controls {
-	border: 1px solid black;
+	border-bottom: 1px solid slategrey;
 	border-radius: 2px;
 	background: aliceblue;
 	position: absolute;
 	top:0;
 
     box-shadow: 0px 0px 1px 0px black;
-    -webkit-box-shadow: 0px 0px 1px 0px black;
+    -webkit-box-shadow: 0px 1px 1px 0px black;
     -moz-box-shadow: 0px 0px 1px 0px black;
 }
 
@@ -100,11 +101,11 @@ body {
 	width: 15px;
 	max-width: 15px;
 
-	border: 1px solid black;
+	/*border: 1px solid black;*/
 	border-top-right-radius: 10px;
 	border-bottom-right-radius: 10px;
 	border-left: none;
-	margin-top: -10px;
+	margin-top: -9px;
 	left: 0px;
 	top:50%;
 	color:white;
@@ -115,9 +116,9 @@ body {
 	text-align:center;
 	padding-left:3px;
 
-    box-shadow: 5px 0px 10px 0px rgba(0,0,0,.4) inset;
-    -webkit-box-shadow: 5px 0px 10px 0px rgba(0,0,0,.4) inset;
-    -moz-box-shadow: 5px 0px 10px 0px rgba(0,0,0,.4) inset;
+    box-shadow: 5px 0px 10px 0px rgba(0,0,40,.6) inset;
+    -webkit-box-shadow: 5px 0px 10px 0px rgba(0,0,80,.6) inset;
+    -moz-box-shadow: 5px 0px 10px 0px rgba(0,0,40,.6) inset;
 }
 
 .output-notch {
@@ -125,11 +126,11 @@ body {
 	height: 17px;
 	width: 15px;
 	max-width: 15px;
-	border: 1px solid black;
+	/*border: 1px solid black;*/
 	border-top-left-radius: 10px;
 	border-bottom-left-radius: 10px;
 	border-right: none;
-	margin-top: -10px;
+	margin-top: -9px;
 	right:0px;
 	top:50%;
 	cursor: pointer;
@@ -141,7 +142,7 @@ body {
 	padding-right:3px;
 
     box-shadow: -5px 0px 10px 0px rgba(0,0,40,.4) inset;
-    -webkit-box-shadow: -5px 0px 10px 0px rgba(0,0,40,.4) inset;
+    -webkit-box-shadow: -5px 0px 10px 0px rgba(0,0,80,.6) inset;
     -moz-box-shadow: -5px 0px 10px 0px rgba(0,0,40,.4) inset;
 }
 
@@ -151,10 +152,10 @@ body {
 	width: 13px;
 	max-height: 13px;
 	max-width: 13px;
-	border: 1px solid black;
+	border: 2px solid white;
 	background: darkgrey;
 	border-radius: 10px;
-	margin-top: -8px;
+	margin-top: -9px;
 	/*border-right: none;*/
 	top:50%;
 	right: 2px;
@@ -165,21 +166,25 @@ body {
 	line-height: 12px;
 	text-align:center;
 
+    box-shadow: 0px 0px 1px 0px rgba(255,255,255,.4);
+    -webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,.5);
+    -moz-box-shadow: 0px 0px 1px 0px rgba(0,0,40,.4);
+
 }
 
 .io .input-handle,
 .io .output-notch,
 .input .input-handle,
 .output .output-notch {
-	background: slategrey;
+	background: deepskyblue;
 	color: white;
 	font-family: serif;
 	font-size:10px;
 }
 .io .output-handle,
 .output .output-handle {
-	background: white;
-	color: black;
+	background: deepskyblue;
+	color: white;
 	font-family: serif;
 	font-size:10px;
 	line-height: 13px;
@@ -188,7 +193,7 @@ body {
 .freq .input-handle,
 .freq .output-handle,
 .freq .output-notch {
-	background: steelblue;
+	background: coral;
 	color: white;
 	padding: none;
 	font-family: inherit;
@@ -196,21 +201,32 @@ body {
 }
 
 .freq input[type='number'] {
-	border-color: steelblue;
-	color: steelblue;
+	border-color: coral;
 }
+.gain input[type='number'] {
+	border-color: mediumseagreen;
+}
+
+.math .input-handle,
+.math .output-handle,
+.math .output-notch {
+	background: slategrey;
+	color:white;
+	font-family: inherit;
+}
+
+
 .gain .input-handle,
 .gain .output-handle,
 .gain .output-notch {
-	background: crimson;
+	background: mediumseagreen;
 	color:white;
 	font-family: inherit;
 }
 
 input[type='number'] {
-	margin: 0px;
-	margin-top: -1px;
 	margin-bottom: 1px;
+	margin-top: -1px;
 	padding: 0px;
 	padding-left: 4px;
 	padding-right: 4px;
@@ -242,13 +258,11 @@ input[type=range][orient=vertical] {
 }
 .row {
 	/*width: 100%;*/
-	min-height: 19px;
+	min-height: 20px;
+	height: 20px;
 	position: relative;
-	padding: 1px;
-	padding-bottom: 2px;
 	padding-left: 20px;
 	padding-right: 20px;
+	padding-bottom: 1px;
 	border-top: 1px solid lightgrey;
-	border-bottom: 1px solid lightgrey;
-	margin-bottom: 1px;
 }
