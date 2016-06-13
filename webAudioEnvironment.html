@@ -1,0 +1,452 @@
+<!doctype html>
+
+<html>
+	<head>
+		<link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700,300,700italic,400italic,300italic' rel='stylesheet' type='text/css'   >	
+		<script src='jquery.js'></script>
+
+		<script src='jquery-ui.js'></script>
+		<link rel='stylesheet' type='text/css' href='webAudioEnvironment.css'>
+		<link rel='stylesheet' type='text/css' href='jquery-ui.css'>
+
+
+	</head>
+	<body>
+		<h6>web audio signal processor</h6>
+		<input
+			type='button'
+			class='create-node-button'
+			data-nodetype='osc'
+			value='Create Oscillator Node'
+		>
+		<input
+			type='button'
+			class='create-node-button'
+			data-nodetype='gain'
+			value='Create Gain Node'
+		>
+		<div id='app-window'>
+		</div>
+	</body>
+	<script>
+//dont do shit til we load
+$(function() {
+//create an audio context
+	var audioContext = new (
+		window.AudioContext ||
+		window.webkitAudioContext
+	)();
+
+	var nodeArray = new Array;
+
+
+	SVG = {
+		createCanvas : function( width, height, container ){
+			var canvas = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			canvas.setAttribute('width', width);
+			canvas.setAttribute('height', height);
+			canvas.setAttribute('pointer-events', 'none');
+			
+			var svgContain = $( '<div style="z-index: 1200; position: absolute;"></div>' );
+			container.append(svgContain)
+			svgContain.append( canvas );    
+			return canvas;
+		},
+		  createLine : function (x1, y1, x2, y2, color, w) {
+			var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+			line.setAttribute('x1', x1);
+			line.setAttribute('y1', y1);
+			line.setAttribute('x2', x2);
+			line.setAttribute('y2', y2);
+			line.setAttribute('stroke', color);
+			line.setAttribute('stroke-width', w);
+			return line;
+		  },
+		updateLine: function (which, x1, y1, x2, y2) {
+			which.setAttribute('x1', x1);
+			which.setAttribute('y1', y1);
+			which.setAttribute('x2', x2);
+			which.setAttribute('y2', y2);
+		},
+		deleteLine: function (which) {
+			which.remove();
+		}
+	}
+
+	var LineContext = function() {
+		this.canvas = SVG.createCanvas (
+			$( '#app-window' ).width(),
+			$( '#app-window' ).height(),
+			$( '#app-window' )
+		);
+		//console.log (this.canvas);
+	}
+	
+	var liveLines = new LineContext();
+	$(liveLines.canvas).css('position', 'absolute');
+
+	//creates relevant button for each node type
+	$(' .create-node-button ').click ( function() {
+		createNode (
+			$( this ).data().nodetype	
+		);
+	});
+
+	function createDragHandle (obj,title) {
+		//creates top bar to drag it by --no reference needed!
+		obj.controls.append ("<div class='drag-handle'>"+title+"</div>");
+		obj.controls.draggable({
+			containment: $( '#app-window' ),
+			handle: '.drag-handle',
+			stack: '.node-controls',
+			start: function() {
+				obj.controls.addClass('selected')
+			},
+			stop: function() {
+				obj.controls.removeClass('selected')
+			}
+		});
+	}
+
+	//this could be SO MUCH CLEANER YOU ARE REPEATING A BUNCH OF SHIT
+	//between this and the update
+	function drawLineFromOutputNotchToOutputHandle(outputHandle) {
+
+		//we have outputNotch (original position)
+		//and need outputHandle (new position)
+		var controls = outputHandle.parents('.node-controls');//.$('.node-controls');
+		var outputNotch = outputHandle.siblings('.output-notch');
+		var row = outputHandle.parent();
+
+		//console.log(outputHandle);
+
+
+		//console.log (outputNotch.position(), outputHandle.position(), controlWindow.position() );
+		//console.log (controlWindow.position() - outputNotch.position() )
+
+
+		var offsetX = row.position().left + controls.position().left;
+		var offsetY = row.position().top + controls.position().top;
+		var outputNotchX = outputNotch.position().left + outputNotch.width() + 4;
+		var outputNotchY = outputNotch.position().top + outputNotch.height()/2 - 4;
+		var outputHandleX = outputHandle.position().left + outputHandle.height()/2 - 4;
+		var outputHandleY = outputHandle.position().top + outputHandle.width()/2 - 4;
+		
+		//console.log (outputNotchX);
+
+		//console.log (outputHandleX + controlWindowX, outputHandleY + controlWindowY);
+
+		var endx = outputHandleX + offsetX;
+		var endy = outputHandleY + offsetY;
+
+		var originx = outputNotchX + offsetX;
+		var originy = outputNotchY + offsetY;
+
+		console.log (outputHandle.css('background'));
+
+		var line = SVG.createLine( originx, originy, endx, endy, outputHandle.css('background'), 4, 'true');
+
+		//CURRENTLY HARDCODED AS liveLines WATCH OUT
+		liveLines.canvas.aline = liveLines.canvas.appendChild(line);
+
+		//var line = "<line x1='" + originx + "' y1='" + originy + "' x2='" + endx + "' y2='" + endy + "' />";
+	}
+
+	function updateLineFromOutputNotchToOutputHandle(outputHandle, which) {
+
+		//we have outputNotch (original position)
+		//and need outputHandle (new position)
+		var controls = outputHandle.parents('.node-controls');//.$('.node-controls');
+		var outputNotch = outputHandle.siblings('.output-notch');
+		var row = outputHandle.parent();
+
+		//console.log(outputHandle);
+
+
+		//console.log (outputNotch.position(), outputHandle.position(), controlWindow.position() );
+		//console.log (controlWindow.position() - outputNotch.position() )
+
+
+		var offsetX = row.position().left + controls.position().left;
+		var offsetY = row.position().top + controls.position().top;
+		var outputNotchX = outputNotch.position().left + outputNotch.width() + 4;
+		var outputNotchY = outputNotch.position().top + outputNotch.height()/2 - 4;
+		var outputHandleX = outputHandle.position().left + outputHandle.height()/2 - 4;
+		var outputHandleY = outputHandle.position().top + outputHandle.width()/2 - 4;
+		
+		//console.log (outputNotchX);
+
+		//console.log (outputHandleX + controlWindowX, outputHandleY + controlWindowY);
+
+		var endx = outputHandleX + offsetX;
+		var endy = outputHandleY + offsetY;
+
+		var originx = outputNotchX + offsetX;
+		var originy = outputNotchY + offsetY;
+
+		//var line = SVG.createLine( originx, originy, endx, endy, 'black', 1);
+
+		//CURRENTLY HARDCODED AS liveLines WATCH OUT
+		//console.log (liveLines.canvas.aline);
+		SVG.updateLine(  liveLines.canvas.aline, originx, originy, endx, endy);
+
+		//var line = "<line x1='" + originx + "' y1='" + originy + "' x2='" + endx + "' y2='" + endy + "' />";
+	}
+
+
+	var GainNode = function() {
+		this.gain = audioContext.createGain();
+
+		//create control window
+		this.controls = $("<div class='node-controls'></div>");
+		$( '#app-window' ).append(this.controls);
+		//we store the object in the window...
+		this.controls.data('rootObj', this);
+
+		NodeOp.createDragHandle(this.controls,'Gain');
+
+		var currentrow = NodeOp.createRow(this.controls, 'io'); //new row i/o
+		var ioDisplay = $("<h1>I/O</h1>");
+		currentrow.append(ioDisplay);
+		var currentrow = NodeOp.createRow(this.controls, 'gain'); //new row gain io
+		//ROW CONTROLS
+
+		//create gain numerical input
+		currentrow.numberInput = $("<input type='number' value='.5' step='.1'>");
+		currentrow.append(currentrow.numberInput);
+
+		//we use parent() to get to object reference stored in its data and call a method
+		//and we have to wrap the call in an anonymous function so we can do some maths...
+		currentrow.numberInput.on ('keyup mouseup', function() {
+			$( this ).parents( '.node-controls' ).data( 'rootObj' ).updateGain( 'gain', this.value );
+		});
+
+		//END ROW CONTROLS
+
+
+		currentrow = NodeOp.createRow(this.controls, 'data'); //new row 
+		//simply displays current volume (as percent)
+		this.controls.gainDisplay = $( "<p>" + this.gain.gain.value * 100 + "%</p>" );
+		currentrow.append (this.controls.gainDisplay);
+	}
+
+	GainNode.prototype.updateGain = function(type, value) {
+		this.gain.gain.value = value;
+		this.controls.gainDisplay.html( (this.gain.gain.value * 100).toFixed(2) );
+		//console.log (this.gain.gain);
+	}
+
+	NodeOp = {
+		//initializes output handle draggability does NOT create handle
+		initOutputHandle : function(handle) {
+			handle.draggable({
+			revertDuration: 200,
+			revert: function() {
+						
+						handle.updateLine = setInterval(function() {
+						updateLineFromOutputNotchToOutputHandle ( handle );
+						//console.log('weeeee');
+					}, .1);
+					return(true);
+				},
+				drag: function() {
+						updateLineFromOutputNotchToOutputHandle ( handle );
+				},
+				start: function() {
+					$(handle).parents('.node-controls ').css('z-index', '1500');
+					$(handle).addClass('selected');
+
+					var line = SVG.createLine( 0,0,0,0, $(handle).css('background-color'), 4, 'true'); //it gets updated right away anyway...
+
+					//CURRENTLY HARDCODED AS liveLines WATCH OUT
+					liveLines.canvas.aline = liveLines.canvas.appendChild(line);
+
+				},
+				stop: function() {
+					//console.log('stop');
+					$(handle).removeClass('selected');
+					$(liveLines.canvas).empty();
+					//console.log(liveLines);
+					$(handle).parents('.node-controls ').css('z-index', 'inherit');
+					SVG.deleteLine( liveLines.canvas.aline );
+					clearInterval (handle.updateLine);
+				}
+			});
+		},
+		//creates the top bar handle for dragging window around
+		createDragHandle : function(controls, title) {
+			//creates top bar to drag it by --no reference needed!
+			controls.append ("<div class='drag-handle'>"+title+"</div>");
+			controls.draggable({
+				containment: $( '#app-window' ),
+				handle: '.drag-handle',
+				stack: '.node-controls',
+				start: function() {
+					controls.css('opacity', '0.8');
+					controls.addClass('selected');
+				},
+				stop: function() {
+					controls.css('opacity', '1');
+					controls.removeClass('selected');
+				}
+			});
+		},
+		createRow : function (controls, type) {
+			var row = $( "<div class='row " + type + "  '> </div>");
+			controls.append (row);
+			var input = true;
+			var output = true;
+			var symbol = false;
+
+			switch(type) {
+				case ('freq') :
+					symbol ='&#402;';
+					symbol ='&#402;';
+
+					break;
+				case ('gain') :
+					symbol = 'A';
+					symbol = 'A';
+
+					break
+				case ('data') :
+					
+					input = false;
+					output = false;
+					break;
+				case ('input') :
+					output = false;
+					break;
+				case ('output') :
+					input = false;
+					break;
+				case ('io') :
+					break;
+			}
+			
+			if (input) {
+				//leave if we don't want an io
+				//makes our input handle
+				if (!symbol) {symbol = '<bold>I</bold>'};
+
+				row.inputHandle = $( "<div class ='input-handle noselect'>"+ symbol + "</div>" );
+				row.append (row.inputHandle);
+			}
+
+			if (symbol == '<bold>I</bold>') {
+				symbol = false;
+			}
+
+			if (output) {
+
+				if (!symbol)  {symbol = '<bold>O</bold>'};
+
+				//creates a notch for when we drag output away
+				row.outputNotch = $( "<div class ='output-notch noselect'></div>" );
+				row.append (row.outputNotch);
+
+				//creates a handle we can drag an output out of
+				row.outputHandle = $( "<div class ='output-handle'>" + symbol + "</div>" );
+				row.append(row.outputHandle);
+
+				//THIS could be done better!!
+				NodeOp.initOutputHandle (row.outputHandle);
+			}
+
+			//so we can add controls
+			return row;
+		}
+
+
+	};
+
+	var OscNode = function () {
+
+		this.osc = audioContext.createOscillator();
+
+		//create control window
+		this.controls = $("<div class='node-controls'></div>");
+		$( '#app-window' ).append(this.controls);
+		//we store the object in the window...
+		this.controls.data('rootObj', this);
+
+		NodeOp.createDragHandle(this.controls,'Oscillator');
+
+		currentrow = NodeOp.createRow(this.controls, 'output'); //new row for output
+
+		var currentrow = NodeOp.createRow(this.controls, 'freq'); //new row for frequency io
+		//ROW CONTROLS
+
+		//create frequency numerical input
+		currentrow.numberInput = $("<input type='number' value='440'>");
+		currentrow.append(currentrow.numberInput);
+
+		//we use parent() to get to object reference stored in its data and call a method
+		//and we have to wrap the call in an anonymous function so we can do some maths...
+		currentrow.numberInput.on ('keyup mouseup', function() {
+			$( this ).parents( '.node-controls' ).data( 'rootObj' ).updateOsc( 'freq', this.value );
+		});
+
+		//END ROW CONTROLS
+
+
+		currentrow = NodeOp.createRow(this.controls, 'data'); //new row for data
+
+		//simply displays current frequency
+		this.controls.freqDisplay = $( "<p>" + this.osc.frequency.value + "hz " + " wave</p>" );
+		currentrow.append (this.controls.freqDisplay);
+		//console.log ( currentrow);
+
+
+		//this is TEMPORARY and should be done in app with multiple controls!!
+		//this.osc.connect(audioContext.destination);
+		//this.osc.start();
+
+		//NOT TEMPORARY
+		this.updateOsc('freq', 440);
+
+	}
+
+	OscNode.prototype.updateOsc = function(type, value) {
+		console.log (type,value);
+		if (type = 'freq') {		
+			this.osc.frequency.value = value;
+			this.controls.freqDisplay.html( this.osc.frequency.value.toFixed(2) + "hz " + this.osc.type );
+		}
+	}
+
+
+
+
+	function createNode (nodetype) {
+		var node;			//a reference to the node we're creating
+		var locateNode;		//the location in nodeArray we want to store that reference
+
+		switch(nodetype) {
+			case ('osc'):
+
+				//console.log ('you wanna create an oscillator?');
+				node = new OscNode();
+
+				break;
+
+			case ('gain'):
+
+				//console.log ('makin a gain node nao');
+				node = new GainNode();
+
+				break;
+
+			default:
+
+				console.log ('ERROR: Node kind not defined!');
+
+		}
+
+		//nodeArray.push (node);
+		//console.log(nodeArray);
+		//console.log (nodeArray[0].controls.freq.val() );
+	}
+});
+	</script>
+</html>

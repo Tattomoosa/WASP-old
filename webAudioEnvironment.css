@@ -1,0 +1,254 @@
+h6 {
+	text-align: center;
+	letter-spacing:18px;
+	font-size:20px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+
+    -webkit-text-shadow: 8px 0px 2px 3px rgba(0,0,0,.8);
+    /*-webkit-box-shadow: 0px 0px 2px 3px rgba(0,0,0,.8);
+    -moz-box-shadow: 0px 0px 2px 3px rgba(0,0,0,.8);
+	*/
+}
+
+body {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+
+	font-family: 'Roboto Condensed';
+	font-weight: 300;
+
+	text-rendering: optimizeLegibility;
+}
+
+
+#app-window {
+	width: 100%;
+	height: 800px;
+	border: 2px solid black;
+	background: hsl(210, 29%, 18%);
+	position: relative;
+}
+
+.selected {
+
+    box-shadow: 0px 0px 2px 3px rgba(255,255,255,.8) !important;
+    -webkit-box-shadow: 0px 0px 2px 3px rgba(255,255,255,.8) !important;
+    -moz-box-shadow: 0px 0px 2px 3px rgba(255,255,255,.8) !important;
+
+}
+.node-controls {
+	border: 1px solid black;
+	border-radius: 2px;
+	background: aliceblue;
+	position: absolute;
+	top:0;
+
+    box-shadow: 0px 0px 1px 0px black;
+    -webkit-box-shadow: 0px 0px 1px 0px black;
+    -moz-box-shadow: 0px 0px 1px 0px black;
+}
+
+.drag-handle {
+	background: black;
+	border:1px solid white;
+	color: white;
+	font-size: 9px;
+	text-align: left;
+	padding: 7px 0px 2px 3px;
+	line-height: 8px;
+	letter-spacing: 2px;
+	border-radius: 3px;
+
+
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+
+	cursor: move;
+}
+
+.node-controls input [type='button'] {
+}
+.node-controls p {
+	text-align: center;
+	font-size:9px;
+	line-height: 20px;
+	padding: 0;
+	margin: 0;
+	border: none;
+}
+.node-controls h1 {
+	text-align: center;
+	font-size: 12px;
+	line-height: 20px;
+	letter-spacing: 2px;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	font-weight: 300;
+}
+
+.input-handle {
+	position: absolute;
+	height: 17px;
+	width: 15px;
+	max-width: 15px;
+
+	border: 1px solid black;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	border-left: none;
+	margin-top: -10px;
+	left: 0px;
+	top:50%;
+	color:white;
+
+	font-size: 9px;
+	font-style: bold;
+	line-height: 16px;
+	text-align:center;
+	padding-left:3px;
+
+    box-shadow: 5px 0px 10px 0px rgba(0,0,0,.4) inset;
+    -webkit-box-shadow: 5px 0px 10px 0px rgba(0,0,0,.4) inset;
+    -moz-box-shadow: 5px 0px 10px 0px rgba(0,0,0,.4) inset;
+}
+
+.output-notch {
+	position: absolute;
+	height: 17px;
+	width: 15px;
+	max-width: 15px;
+	border: 1px solid black;
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+	border-right: none;
+	margin-top: -10px;
+	right:0px;
+	top:50%;
+	cursor: pointer;
+
+	font-size: 9px;
+	font-style: bold;
+	line-height: 16px;
+	text-align:center;
+	padding-right:3px;
+
+    box-shadow: -5px 0px 10px 0px rgba(0,0,40,.4) inset;
+    -webkit-box-shadow: -5px 0px 10px 0px rgba(0,0,40,.4) inset;
+    -moz-box-shadow: -5px 0px 10px 0px rgba(0,0,40,.4) inset;
+}
+
+.output-handle {
+	position: absolute;
+	height: 13px;
+	width: 13px;
+	max-height: 13px;
+	max-width: 13px;
+	border: 1px solid black;
+	background: darkgrey;
+	border-radius: 10px;
+	margin-top: -8px;
+	/*border-right: none;*/
+	top:50%;
+	right: 2px;
+	cursor: pointer;
+
+	font-size: 9px;
+	font-style: bold;
+	line-height: 12px;
+	text-align:center;
+
+}
+
+.io .input-handle,
+.io .output-notch,
+.input .input-handle,
+.output .output-notch {
+	background: slategrey;
+	color: white;
+	font-family: serif;
+	font-size:10px;
+}
+.io .output-handle,
+.output .output-handle {
+	background: white;
+	color: black;
+	font-family: serif;
+	font-size:10px;
+	line-height: 13px;
+}
+
+.freq .input-handle,
+.freq .output-handle,
+.freq .output-notch {
+	background: steelblue;
+	color: white;
+	padding: none;
+	font-family: inherit;
+	font-style: italic;
+}
+
+.freq input[type='number'] {
+	border-color: steelblue;
+	color: steelblue;
+}
+.gain .input-handle,
+.gain .output-handle,
+.gain .output-notch {
+	background: crimson;
+	color:white;
+	font-family: inherit;
+}
+
+input[type='number'] {
+	margin: 0px;
+	margin-top: -1px;
+	margin-bottom: 1px;
+	padding: 0px;
+	padding-left: 4px;
+	padding-right: 4px;
+	font-size: 13px;
+	line-height: 9px;
+	letter-spacing: 2px;
+	width: 50px;
+	height: 15px;
+	border-style: solid;
+	border-width: 1px;
+
+	font-family: 'Roboto Condensed';
+	font-weight: 300;
+}
+
+
+input[type=range][orient=vertical] {
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* WebKit */
+    width: 9px;
+	margin-left:1;
+
+    height: 100px;
+}
+
+.row.io h1{
+	color: slategrey;
+	font-size: 9px;
+}
+.row {
+	/*width: 100%;*/
+	min-height: 19px;
+	position: relative;
+	padding: 1px;
+	padding-bottom: 2px;
+	padding-left: 20px;
+	padding-right: 20px;
+	border-top: 1px solid lightgrey;
+	border-bottom: 1px solid lightgrey;
+	margin-bottom: 1px;
+}
