@@ -11,7 +11,19 @@ h6 {
 	*/
 }
 
+.selectbox {
+	height: 0px;
+	width: 0px;
+	background: rgba(255,255,255,.2);
+	border: 1px dotted white;
+	position:absolute;
+	z-index: 2000;
+	pointer-events: none;
+}
 body {
+	border: none;
+	padding: 0;
+	margin: 0;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
@@ -22,20 +34,43 @@ body {
 	text-rendering: optimizeLegibility;
 
 }
+.close-button,
+.mini-button {
+	position: absolute;
+	font-size: 11px;
+	top: 3px;
+	right: 2px;
+	font-family: sans-serif;
+	color: slategrey;
+}
+.selected .close-button {
+	color:white;
+}	
 
-
-#app-window {
-	width: 100%;
-	height: 800px;
-	border: 2px solid black;
-	background: hsl(210, 29%, 18%);
-	position: relative;
+.mini-button {
+	display: none;
 }
 
+#app-window {
+	width: 98%;
+	height: 800px;
+	margin-left: 1%;
+	margin-right: 1%;
+	overflow: scroll;
+}
+#background-layer{
+	width: 300%;
+	height: 1800px;
+	background: hsl(210, 29%, 18%);
+	position: relative;
+	z-index:0;
+	background-size: 20px 20px;
+    background-image: linear-gradient(to right, black 1px, transparent 1px), linear-gradient(to bottom, black 1px, transparent 1px);
+}
 .selected {
 
     box-shadow: 0px 0px 2px 3px rgba(255,255,255,.8) !important;
-    -webkit-box-shadow: 0px 0px 2px 3px rgba(255,255,255,.8) !important;
+    -webkit-box-shadow: 0px 0px 9px 3px rgba(255,255,255,.4) !important;
     -moz-box-shadow: 0px 0px 2px 3px rgba(255,255,255,.8) !important;
 
 }
@@ -45,6 +80,7 @@ body {
 	background: aliceblue;
 	position: absolute;
 	top:0;
+	z-index:2;
 
     box-shadow: 0px 0px 1px 0px black;
     -webkit-box-shadow: 0px 1px 1px 0px black;
@@ -61,6 +97,7 @@ body {
 	line-height: 8px;
 	letter-spacing: 2px;
 	border-radius: 3px;
+	padding-right: 13px;
 
 
 	-webkit-touch-callout: none; /* iOS Safari */
@@ -70,11 +107,20 @@ body {
 	-ms-user-select: none;       /* Internet Explorer/Edge */
 	user-select: none;           /* Non-prefixed version, currently
                                   not supported by any browser */
-
-	cursor: move;
+	cursor: default;
 }
 
-.node-controls input [type='button'] {
+.selected .drag-handle {
+	background: darkslategrey;
+}
+
+.node-controls input[type='button'] {
+	border: 1px solid black;
+	background: white;
+	border-radius: 0;
+	padding: 2px;
+	line-height: 13px;
+	min-width: 0;
 }
 .node-controls p {
 	text-align: center;
@@ -84,15 +130,27 @@ body {
 	margin: 0;
 	border: none;
 }
+
 .node-controls h1 {
 	text-align: center;
 	font-size: 12px;
-	line-height: 20px;
+	line-height: 9px;
 	letter-spacing: 2px;
 	padding: 0;
+	padding-top: 2px;
 	margin: 0;
 	border: 0;
 	font-weight: 300;
+
+
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+	cursor: default;
 }
 
 .input-handle {
@@ -105,20 +163,34 @@ body {
 	border-top-right-radius: 10px;
 	border-bottom-right-radius: 10px;
 	border-left: none;
-	margin-top: -9px;
+	margin-top: -10px;
 	left: 0px;
 	top:50%;
 	color:white;
 
+	border-top: 1px solid slategrey;
+	border-bottom: 1px solid slategrey;
+	border-right: 1px solid slategrey;
+	border-color: lightgrey;
+
 	font-size: 9px;
 	font-style: bold;
-	line-height: 16px;
+	line-height: 17px;
 	text-align:center;
-	padding-left:3px;
+	padding-right:1px;
 
     box-shadow: 5px 0px 10px 0px rgba(0,0,40,.6) inset;
     -webkit-box-shadow: 5px 0px 10px 0px rgba(0,0,80,.6) inset;
     -moz-box-shadow: 5px 0px 10px 0px rgba(0,0,40,.6) inset;
+
+
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
 }
 
 .output-notch {
@@ -130,20 +202,33 @@ body {
 	border-top-left-radius: 10px;
 	border-bottom-left-radius: 10px;
 	border-right: none;
-	margin-top: -9px;
+	margin-top: -10px;
 	right:0px;
 	top:50%;
-	cursor: pointer;
+
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+	border-left: 1px solid;
+	border-color:lightgrey;
 
 	font-size: 9px;
 	font-style: bold;
 	line-height: 16px;
 	text-align:center;
-	padding-right:3px;
+	padding-right:1px;
 
     box-shadow: -5px 0px 10px 0px rgba(0,0,40,.4) inset;
     -webkit-box-shadow: -5px 0px 10px 0px rgba(0,0,80,.6) inset;
     -moz-box-shadow: -5px 0px 10px 0px rgba(0,0,40,.4) inset;
+
+
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
 }
 
 .output-handle {
@@ -158,18 +243,30 @@ body {
 	margin-top: -9px;
 	/*border-right: none;*/
 	top:50%;
-	right: 2px;
-	cursor: pointer;
+	right: 0px;
+	cursor:pointer;
 
 	font-size: 9px;
 	font-style: bold;
 	line-height: 12px;
 	text-align:center;
 
-    box-shadow: 0px 0px 1px 0px rgba(255,255,255,.4);
+    box-shadow: 0px 0px 1px 1px rgba(0,0,0,.5);
     -webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,.5);
-    -moz-box-shadow: 0px 0px 1px 0px rgba(0,0,40,.4);
+    -moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,.5);
 
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+
+}
+
+.is-input:hover {
+	background: red;
 }
 
 .io .input-handle,
@@ -180,6 +277,7 @@ body {
 	color: white;
 	font-family: serif;
 	font-size:10px;
+	font-style: italic;
 }
 .io .output-handle,
 .output .output-handle {
@@ -188,25 +286,35 @@ body {
 	font-family: serif;
 	font-size:10px;
 	line-height: 13px;
+	font-style: italic;
+
 }
 
-.freq .input-handle,
-.freq .output-handle,
-.freq .output-notch {
+.input .output-handle:hover,
+.io .output-handle:hover,
+.output .output-handle:hover {
+    box-shadow: 0px 0px 5px 1px rgba(255, 255, 255, .8);
+    -webkit-box-shadow: 0px 0px 5px 1px deepskyblue;
+    -moz-box-shadow: 0px 0px 5px 1px rgba(255, 255, 255, .8);
+
+}
+
+.frequency .input-handle,
+.frequency .output-handle,
+.frequency .output-notch {
 	background: coral;
 	color: white;
 	padding: none;
-	font-family: inherit;
+	font-family: Roboto Condensed;
 	font-style: italic;
 }
 
-.freq input[type='number'] {
-	border-color: coral;
-}
-.gain input[type='number'] {
-	border-color: mediumseagreen;
-}
+.frequency .output-handle:hover {
+    box-shadow: 0px 0px 5px 1px rgba(255, 255, 255, .8);
+    -webkit-box-shadow: 0px 0px 5px 1px coral;
+    -moz-box-shadow: 0px 0px 5px 1px rgba(255, 255, 255, .8);
 
+}
 .math .input-handle,
 .math .output-handle,
 .math .output-notch {
@@ -215,16 +323,66 @@ body {
 	font-family: inherit;
 }
 
+.type .input-handle,
+.type .output-handle,
+.type .output-notch {
+	background: lightseagreen;
+	color: white;
+	padding: none;
+	font-family: Roboto Condensed;
+}
+
+.type .output-handle:hover {
+    box-shadow: 0px 0px 5px 1px rgba(255, 255, 255, .8);
+    -webkit-box-shadow: 0px 0px 5px 1px lightseagreen;
+    -moz-box-shadow: 0px 0px 5px 1px rgba(255, 255, 255, .8);
+}
+
+.type input[type='button'] {
+}
 
 .gain .input-handle,
 .gain .output-handle,
 .gain .output-notch {
-	background: mediumseagreen;
+	background: indianred;
 	color:white;
 	font-family: inherit;
 }
 
-input[type='number'] {
+.gain .output-handle:hover {
+    box-shadow: 0px 0px 5px 1px rgba(255, 255, 255, .8);
+    -webkit-box-shadow: 0px 0px 5px 1px indianred;
+    -moz-box-shadow: 0px 0px 5px 1px rgba(255, 255, 255, .8);
+}
+
+.delay-time .input-handle,
+.delay-time .output-handle,
+.delay-time .output-notch {
+	background: mediumpurple;
+	color: white;
+	line-height: 17px;
+}
+.delay-time .output-handle {
+	line-height: 14px;
+}
+.delay-time .output-handle:hover {
+    box-shadow: 0px 0px 5px 1px rgba(255, 255, 255, .8);
+    -webkit-box-shadow: 0px 0px 5px 1px mediumpurple;
+    -moz-box-shadow: 0px 0px 5px 1px rgba(255, 255, 255, .8);
+}
+
+
+.panner .input-handle,
+.panner .output-handle,
+.panner .output-notch {
+	background: mediumseagreen;
+	color:white;
+	font-family: inherit;
+}
+.panner .output-handle {
+	line-height: 12px;
+}
+/*input[type='number'] {
 	margin-bottom: 1px;
 	margin-top: -1px;
 	padding: 0px;
@@ -240,6 +398,29 @@ input[type='number'] {
 
 	font-family: 'Roboto Condensed';
 	font-weight: 300;
+}*/
+input[type='number'] {
+	font-family: 'Roboto Condensed';
+	font-size: 10px;
+	line-height: 9px;
+
+	color: slategrey;
+	background: none;
+	text-align: center;
+	line-height: 9px;
+	letter-spacing: 2px;
+	padding: 0;
+	padding-top: 0px;
+	padding-left:12px;
+	margin-top: -8px;
+	border: 0;
+	font-weight: 300;
+	max-width: 50px;
+}
+
+input[type='number']:hover {
+	background: white;
+	color: black;
 }
 
 
@@ -252,17 +433,18 @@ input[type=range][orient=vertical] {
     height: 100px;
 }
 
-.row.io h1{
+.row h1{
 	color: slategrey;
 	font-size: 9px;
 }
 .row {
 	/*width: 100%;*/
-	min-height: 20px;
-	height: 20px;
+	min-height: 22px;
+	/*height: 20px;*/
 	position: relative;
 	padding-left: 20px;
 	padding-right: 20px;
 	padding-bottom: 1px;
 	border-top: 1px solid lightgrey;
+	text-align: center;
 }
