@@ -33,29 +33,45 @@ body {
 
 	text-rendering: optimizeLegibility;
 
+	overflow: none;
+
 }
 .close-button,
 .mini-button {
 	position: absolute;
 	font-size: 11px;
-	top: 3px;
-	right: 2px;
+	padding: 2px;
+	margin: 1px;
+	margin-right: 1px;
+	padding-right: 1px;
+	padding-left: 3px;
+	top: 0px;
+	right: 0px;
 	font-family: sans-serif;
 	color: slategrey;
+	border-radius: 1px;
 }
 .selected .close-button {
+	color: lightslategrey;
+}
+
+.close-button:hover {
+	background:slategrey;
 	color:white;
-}	
+}
+.close-button:active {
+	background: white;
+	color: red;
+}
 
 .mini-button {
 	display: none;
 }
 
 #app-window {
-	width: 98%;
+	width: 100%;
+	margin: auto;
 	height: 800px;
-	margin-left: 1%;
-	margin-right: 1%;
 	overflow: scroll;
 }
 #background-layer{

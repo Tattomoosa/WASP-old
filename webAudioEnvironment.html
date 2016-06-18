@@ -45,6 +45,12 @@
 			data-nodetype='destination'
 			value='Create Destination Node'
 		>
+		<input
+			type='button'
+			class='create-node-button'
+			data-nodetype='analyser'
+			value='Create Analyser Node'
+		>
 			<div id='app-window'>
 				<div id='background-layer'></div>
 			</div>
@@ -52,6 +58,7 @@
 	<script>
 //dont do shit til we load
 $(function() {
+	"use strict"
 
 	//create an audio context
 	var audioContext = new (
@@ -59,10 +66,10 @@ $(function() {
 		window.webkitAudioContext
 	)();
 
-	gameInitialization = {
-		initAppWindow () {
+	var gameInitialization = {
+		initAppWindow : function() {
 			var div, initOffset
-			aw = $( '#background-layer');
+			var aw = $( '#background-layer');
 			console.log(foregroundLines.canvas);
 			$(backgroundLines.canvas).on('mousedown',function(e) {
 				if (!e.shiftKey) {
@@ -88,15 +95,13 @@ $(function() {
 						var boxLeft = box.offset().left;
 						var boxBottom = boxTop + box.height();
 						var boxRight = boxLeft + box.width();
-						console.log(boxTop, boxLeft, boxBottom, boxRight);
-						console.log(selectTop, selectLeft, selectBottom, selectRight);
 						var yIn = false;
 						var xIn = false;
 
-						if (boxTop > selectTop && boxTop < selectBottom || boxBottom < selectBottom && boxBottom > selectTop) {
-							console.log ('y checks out...');
-							if (boxLeft > selectLeft && boxLeft < selectRight || boxRight < selectRight && boxRight > selectLeft) {
-								console.log ('x checks out...');
+						if (boxTop > selectTop && boxTop < selectBottom || boxBottom < selectBottom && boxBottom > selectTop ||
+								boxTop < selectBottom && boxBottom > selectTop) {
+							if (boxLeft > selectLeft && boxLeft < selectRight || boxRight < selectRight && boxRight > selectLeft ||
+								boxLeft < selectRight && boxRight > selectLeft) {
 								box.addClass('selected');
 							};
 
@@ -118,7 +123,6 @@ $(function() {
 					} else {
 						div.offset({top:event.pageY});
 						div.height(y);
-						console.log('div height is' + div.height() );
 					};
 					if (x < 0) {
 						div.offset({left:initOffset.left});
@@ -132,7 +136,7 @@ $(function() {
 		}
 	}
 
-	SVG = {
+	var SVG = {
 		createCanvas : function( width, height, container, pos, z, pointerevents){
 			var canvas = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			canvas.setAttribute('width', width);
@@ -155,13 +159,16 @@ $(function() {
 			line.setAttribute('y2', y2);
 			line.setAttribute('stroke', color);
 			line.setAttribute('stroke-width', w);
-			line.setAttribute('onmouseover',SVG.mouseOverLine); //doesnt work
 			return line;
 		  },
 
-		  mouseOverLine : function(line, stroke) {
-			line.setAttribute('stroke', stroke);
-		  },
+		mouseOverLine : function (line, stroke) {
+			line.setAttribute('stroke-width', stroke);
+		},
+		mouseLeaveLine : function (line, stroke) {
+			line.setAttribute('stroke-width', stroke);
+		},
+
 		updateLine: function (which, x1, y1, x2, y2) {
 			which.setAttribute('x1', x1);
 			which.setAttribute('y1', y1);
@@ -199,6 +206,8 @@ $(function() {
 	});
 	
 	function updateConnectingLine (origin, end, line) {
+
+		requestAnimationFrame(function() {
 		var y1 = origin.offset().top + origin.height()/2;
 		var x1 = origin.offset().left + origin.width()/2;
 		var y2 = end.offset().top + end.width()/2;
@@ -206,8 +215,9 @@ $(function() {
 		var appwindow = $( '#app-window' );
 	    var offy = appwindow.offset().top;
 		var offx = appwindow.offset().left;	
-
+		
 		SVG.updateLine( line, x1-offx, y1-offy, x2-offx, y2-offy);
+		});
 	}
 
 
@@ -256,7 +266,7 @@ $(function() {
 
 	DelayNodeGUI.prototype.update = function(which, aValue) {
 		if (which = 'delayTime') {
-			stringCommand = 'this.node.' + which + '.value'; //this tells us which audioParam to deal with dynamically
+			var stringCommand = 'this.node.' + which + '.value'; //this tells us which audioParam to deal with dynamically
 			console.log (eval (stringCommand + ' = ' + aValue) ); //eval evaluates a string as code!
 			eval (stringCommand + ' = ' + aValue);
 
@@ -319,8 +329,8 @@ $(function() {
 
 	GainNodeGUI.prototype.update = function(which, aValue) {
 		if (which = 'gain') {
-			stringCommand = 'this.node.' + which + '.value'; //this tells us which audioParam to deal with dynamically
-			console.log (eval (stringCommand + ' = ' + aValue) ); //eval evaluates a string as code!
+			var stringCommand = 'this.node.' + which + '.value'; //this tells us which audioParam to deal with dynamically
+			//console.log (eval (stringCommand + ' = ' + aValue) ); //eval evaluates a string as code!
 			eval (stringCommand + ' = ' + aValue);
 
 			//this.controls.gainDisplay.html( (eval (stringCommand)).toFixed(2) );
@@ -351,7 +361,7 @@ $(function() {
 		//NEW ROW
 		var currentrow = NodeOp.createRow(this.controls, 'frequency'); //new row for frequency io
 		currentrow.data( 'node', this.node.frequency );
-		rowDisplay = $("<h1>FREQ</h1>");
+		rowDisplay = $("<h1>FREQUENCY</h1>");
 		currentrow.append(rowDisplay);
 
 		//ROW CONTROLS
@@ -380,6 +390,7 @@ $(function() {
 
 		//gets run as code in NodeOp.connection
 		currentrow.data( 'node', this.node.type ); //type = wavetype
+		console.log(this.node);
 
 		//END ROW
 
@@ -395,7 +406,7 @@ $(function() {
 		}
 	}
 		
-	StereoPannerNodeGUI = function(type, value) {
+	var StereoPannerNodeGUI = function(type, value) {
 
 		this.node = audioContext.createStereoPanner();
 
@@ -446,13 +457,15 @@ $(function() {
 		}
 	}
 
-	AnalyserNodeGUI = function(type, value) {
+	var AnalyserNodeGUI = function(type, value) {
+
+		this.node = audioContext.createAnalyser();
 
 		//create control window
 		this.controls = $("<div class='node-controls'></div>");
 		$( '#app-window' ).append(this.controls);
 		//we store the object in the window...
-		this.controls.data('rootObj', this);
+		this.controls.data('rootObj', this.node);
 
 		NodeOp.createDragHandle(this.controls,'Analyser');
 
@@ -460,7 +473,7 @@ $(function() {
 		var currentrow = NodeOp.createRow(this.controls, 'input'); //new row input
 
 		//gets run as code in NodeOp.connection
-		currentrow.data( 'node', audioContext.destination );
+		currentrow.data( 'node', this.node );
 
 		var inputDisplay = $("<h1>INPUT</h1>");
 		currentrow.append(inputDisplay);
@@ -470,7 +483,7 @@ $(function() {
 	};
 
 	//makesa sound come outcha speakas
-	DestinationNodeGUI = function(type, value) {
+	var DestinationNodeGUI = function(type, value) {
 
 		//create control window
 		this.controls = $("<div class='node-controls'></div>");
@@ -515,7 +528,7 @@ $(function() {
 
 //Here are the operations that accomplish creating and maintaining nodes
 
-	NodeOp = {
+	var NodeOp = {
 		//removes all selected elements
 		removeSelected : function() {
 			//console.log ($(this));
@@ -566,21 +579,20 @@ $(function() {
 		},
 		disconnectByOutputHandle : function (handle) {
 			var notch = handle.data('connected-notch');
+			console.log('in disconnect by output handle now we got' + handle, notch);
 			NodeOp.disconnection(handle, notch);
 			SVG.deleteLine(handle.data('connected-line'));
 
 			var outputNotchHandleArray = $( notch.data('connected-handles') );
 			outputNotchHandleArray.each( function(index, element) {
-				if (this == handle) {
-					console.log ('before splice: ' + outputNotchHandleArray );
+				console.log('this and handle: '+ $(this) , handle);
+				if (handle == this || $(this) ) {
 					outputNotchHandleArray.splice(index, 1);
-					console.log ('after splice: ' + outputNotchHandleArray );
 				} else {
 					console.log ('search');
 				}
 			});
 			notch.data('connected-handles', outputNotchHandleArray);
-			console.log (outputNotchHandleArray.length);
 			if (outputNotchHandleArray.length == 0) {
 				//remove our handle from the notch so it doesn't tel svg to draw lines
 				notch.removeData('connected-handles');
@@ -589,9 +601,10 @@ $(function() {
 			}
 			handle.remove();
 		},
+
 		resetOutputHandle : function (handle) {
 			console.log ('reset output handle ' + handle);
-			outputHandle = $(handle);
+			var outputHandle = $(handle);
 			outputHandle.css({
 				'margin-top' : '-9px' ,
 				'top' : '50%',
@@ -602,10 +615,8 @@ $(function() {
 			});
 		},
 		initOutputAsInputHandle : function (handle)  {
-			console.log(handle);
 			handle.click(function() {
-
-				NodeOp.disconnectByOutputHandle(handle)
+				NodeOp.disconnectByOutputHandle($(handle))
 				console.log('click click');
 			});
 		},
@@ -614,7 +625,7 @@ $(function() {
 			handle.droppable({
 				accept: '.output-handle',
 				activeClass : '.selected' ,
-				tolerance : 'pointer',
+				tolerance : 'intersect',
 				drop : function(event, ui) {
 					//GOTTA BE A BETTER WAY SPLIT THIS SHIT UP!!
 
@@ -626,7 +637,7 @@ $(function() {
 					//our output-handle is going to a foreign land
 					//we need to make sure it rememberswhere home is...
 
-					connectedNotch = outputHandle.siblings('.output-notch' );
+					var connectedNotch = outputHandle.siblings('.output-notch' );
 
 					
 
@@ -640,13 +651,13 @@ $(function() {
 					//the notch must remember too
 					//make an array so we can do multi-out?
 					
-					console.log ('connected notch handle data reads' + connectedNotch.data('connected-handles') );
 
 					if (connectedNotch.data('connected-handles') === undefined ) {
 						connectedNotch.data('connected-handles', [outputHandle]);
 					} else {
 						connectedNotch.data('connected-handles').push(outputHandle);
 					}
+					console.log ('connected notch handle data reads' + connectedNotch.data('connected-handles') );
 						//create a new output handle back at home
 						var row = outputHandle.closest('.row'); //need this for later..
 
@@ -702,6 +713,7 @@ $(function() {
 						NodeOp.initOutputHandle (newOutputHandle);
 
 
+
 						//made it!!
 						//lets draw a line to celebrate!
 
@@ -709,13 +721,22 @@ $(function() {
 						$(foregroundLines.canvas).empty();
 						//and draw some nice background lines instead
 						var line = SVG.createLine( 0,0,100,100, bgcol, 2, 'true'); //it gets updated right away anyway...
-
 						outputHandle.data( 'connected-line', backgroundLines.canvas.appendChild(line) );
 						//backgroundLines.canvas.appendChild(line);
 						//outputHandle.val( 'line', line );
 
 
-						updateConnectingLine (outputHandle, outputHandle.data( 'connected-notch' ), outputHandle.data( 'connected-line' ) );
+						updateConnectingLine (outputHandle, outputHandle.data( 'connected-notch' ), line );
+						var $line = $(line);
+						$line.hover(function() {
+							SVG.mouseOverLine(line,6)
+						}, function() {
+							SVG.mouseLeaveLine(line,2);
+						});
+						$line.click(function() {
+							console.log('you clicked a line!');
+						});
+
 
 						console.log('drop');
 
@@ -742,7 +763,7 @@ $(function() {
 				console.log ('no, output is AudioParam and I havent made that work yet');
 				return false;
 			} else {
-				console.log ('unless they are already connected?');
+				console.log ('Yes... unless they are already connected?');
 				//how do i tell???
 
 				//there is no way in Web Audio API to check if two nodes are connected, but...
@@ -777,12 +798,12 @@ $(function() {
 
 			$('#app-window').children('.selected').each(function() {
 
-			var which = $(this);
-			var offsetPos = which.data('offsetPosition');
+				var which = $(this);
+				var offsetPos = which.data('offsetPosition');
 
-			if (!which.is(actual) ) {
-				which.offset({ 'top' : event.pageY - offsetPos.top , 'left' : event.pageX - offsetPos.left});
-			};
+				if (!which.is(actual) ) {
+					which.offset({ 'top' : event.pageY - offsetPos.top , 'left' : event.pageX - offsetPos.left});
+				};
 				//we have to update all connected lines!
 				which.find('.is-input').each(function() {
 					var outputHandle = $(this);
@@ -811,8 +832,8 @@ $(function() {
 			//creates top bar to drag it by --no reference needed!
 			var appender = $("<div class='drag-handle'>" + title + "</div>");
 			controls.append(appender);
-			appender.append ("<span class ='mini-button '>_</span>");
-			appender.append ("<span class ='close-button'>x</span>");
+			var closeButton = $("<span class ='close-button'>x</span>");
+			appender.append(closeButton);
 			controls.draggable({
 				containment: $( '#app-window' ),
 				handle: '.drag-handle',
@@ -821,17 +842,15 @@ $(function() {
 					var actual = $(this);
 					
 					//remove all other selected if not holding shift
-					if (!e.shiftKey) {
-						NodeOp.removeSelected();
-					}
+					//if (!e.shiftKey) {
+					//	NodeOp.removeSelected();
+					//}
 					//this bullshit is to deal with dragging a bunch of selected shit at once
 					$('#app-window').children('.selected').not(actual).each(function() {
 						var thisPos = $(this).offset();
 						var myPos = actual.offset();
-						console.log( thisPos, myPos);
 						var endPos = {top: event.pageY - thisPos.top , left: event.pageX - thisPos.left}
 						$(this).data('offsetPosition', endPos);
-						console.log (endPos);
 					});
 
 					//NodeOp.removeSelected();
@@ -849,7 +868,7 @@ $(function() {
 					NodeOp.onControlsDrag( $(this) );
 				}
 			});
-			controls.click(function(e) {
+			controls.on('mousedown',function(e) {
 				if (!e.shiftKey) {
 					NodeOp.removeSelected();
 				}
@@ -858,6 +877,22 @@ $(function() {
 			controls.children( ' .drag-handle ' ).dblclick(function() {
 				console.log ('double click!');
 				//here we do shit to minimize window
+			});
+			closeButton.click(function() {
+				
+				controls.find('.is-input').each(function() {
+					console.log('foreign output' + $(this));
+					NodeOp.disconnectByOutputHandle( $(this) );
+				});
+
+				controls.find('.sending-output').each(function() {
+					var handleArray = $(this).data('connected-handles');
+					$(handleArray).each(function(index,element) {
+						NodeOp.disconnectByOutputHandle( $(this) );
+					});
+				});
+				controls.remove();
+
 			});
 		},
 		createRow : function (controls, type) {
@@ -871,20 +906,28 @@ $(function() {
 			switch(type) {
 				case ('frequency') :
 					symbol ='&#402;';
+					output = false;
 					break;
 				case ('gain') :
 					symbol = 'A';
+					output = false;
+
 					break;
 				case ('type') :
 					symbol = 'w'; //for wave, type is wavetype
+					input = false;
+					output = false;
+
 					break;
 
 				case ('delay-time') :
 					symbol = 'T';
+					output = false;
 					break;
 
 				case ('panner') :
 					symbol = 'p';
+					output = false;
 
 					break;
 				case ('data') :
@@ -896,6 +939,7 @@ $(function() {
 					symbol = 'S'
 					output = false;
 					break;
+
 				case ('output') :
 					symbol = 'S'
 					input = false;
@@ -971,6 +1015,9 @@ $(function() {
 				node = new DestinationNodeGUI();
 				break;
 
+			case ('analyser'):
+				node = new AnalyserNodeGUI();
+				break;
 			default:
 
 				console.log ('ERROR: Node kind not defined!');
