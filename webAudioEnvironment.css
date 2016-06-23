@@ -20,6 +20,7 @@ h6 {
 	z-index: 2000;
 	pointer-events: none;
 }
+
 body {
 	border: none;
 	padding: 0;
@@ -50,6 +51,7 @@ body {
 	font-family: sans-serif;
 	color: slategrey;
 	border-radius: 1px;
+	z-index: 3;
 }
 .selected .close-button {
 	color: lightslategrey;
@@ -67,7 +69,9 @@ body {
 .mini-button {
 	display: none;
 }
-
+.inline-inputs {
+	max-width:50px;
+}
 #app-window {
 	width: 100%;
 	margin: auto;
@@ -81,7 +85,8 @@ body {
 	position: relative;
 	z-index:0;
 	background-size: 20px 20px;
-    background-image: linear-gradient(to right, black 1px, transparent 1px), linear-gradient(to bottom, black 1px, transparent 1px);
+    background-image: linear-gradient(to right, darkslategrey 1px, transparent 1px),
+		linear-gradient(to bottom, darkslategrey 1px, transparent 1px);
 }
 .selected {
 
@@ -279,6 +284,56 @@ body {
 	user-select: none;           /* Non-prefixed version, currently
                                   not supported by any browser */
 
+}
+.resize-handle {
+	position: absolute;
+	background: transparent;
+	width: 10px;
+	height: 10px;
+	z-index: 2;
+}
+
+.resize-sw {
+	cursor: nesw-resize;
+	bottom: -4px;
+	left: -4px;
+	margin-top: -7px;
+	margin-left: -4px;
+	z-index: 2;
+}
+
+.resize-e {
+	cursor: ew-resize;
+	height: 100%;
+	top: 0px;
+	right: -4px;
+	margin-left: -7px;
+	z-index: 1;
+}
+.resize-w {
+	cursor: ew-resize;
+	height: 100%;
+	top:0px;
+	left: 0px;
+	margin-left: -7px;
+	z-index: 1;
+}
+.resize-se {
+	cursor: nwse-resize;
+	bottom: -4px;
+	right: -4px;
+	margin-top: -7px;
+	margin-left: -7px;
+	z-index: 2;
+}
+
+.resize-s {
+	cursor: ns-resize;
+	width: 100%;
+	bottom: -4px;
+	left: 0;
+	margin-top: -7px;
+	z-index: 1;
 }
 
 .is-input:hover {
