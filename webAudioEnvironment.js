@@ -357,13 +357,58 @@ $(function() {
 
 		//NEW ROW
 		currentrow = NodeOp.createRow(this.controls, 'type'); //new row for wavetype
-		rowDisplay = $("<h1>TYPE</h1>");
-		currentrow.append(rowDisplay);
-		rowDisplay = $("<h1>SINE</h1>");
-		currentrow.append(rowDisplay);
+		//rowDisplay = $("<h1>TYPE</h1>");
+		//currentrow.append(rowDisplay);
 
-		currentrow.append(currentrow.typeInput);
+		//here we make a dropdown menu... gotta figure out a good way to split it up
+		//without making too many assumptions...
+		var typeList = $("<div class='dropdown selected'></div>");
+		currentrow.append(typeList);
+		
+		var option = $("<li data-wavetype='sine'>SINE</li>");
+		typeList.append(option);
+		
+		option = $("<li data-wavetype='square'>SQUARE</li>");
+		typeList.append(option);
+		
+		option = $("<li data-wavetype='sawtooth'>SAWTOOTH</li>");
+		typeList.append(option);
 
+		option = $("<li data-wavetype='triangle'>TRIANGLE</li>");
+		typeList.append(option);
+		//gonna have to make this is work someday.........
+		//option = $("<li data-wavetype='custom'>CUSTOM</li>");
+		//typeList.append(option);
+
+		var typeButton = $("<h1 class='dropdown-call'>TYPE<br>SINE</h1>");
+		currentrow.append(typeButton);
+
+		typeList.children().each(function() {
+			$(this).click(function() {
+				var node = $(this).closest('.node-controls').data('rootObj');
+				node.update ('type', $(this).data('wavetype'));
+				typeButton.html('TYPE<br>' + $(this).html());
+				typeList.css('display','none');
+			});
+		});
+
+		typeList.mouseleave(function() {
+			$(this).css('display', 'none');
+			typeButton.css('display', 'block');
+		});
+
+		typeButton.click(function(e) {
+			console.log(typeButton.siblings('.dropdown'));
+			var dropdown = typeButton.siblings('.dropdown')
+			dropdown.css({
+				'display': 'block',
+			});
+			dropdown.offset({
+				'top' : e.pageY-4,
+				'left' : e.pageX-4,
+			});
+		});
+		//done with dropdown!
 
 		//gets run as code in NodeOp.connection
 		currentrow.data( 'node', this.node.type ); //type = wavetype
@@ -378,9 +423,12 @@ $(function() {
 	}
 
 	OscNodeGUI.prototype.update = function(which, value) {
-		if (which = 'frequency') {		
+		if (which == 'frequency') {		
 			this.node.frequency.value = value;
 			//this.controls.freqDisplay.html( this.node.frequency.value.toFixed(2) + "hz " + this.node.type );
+		}
+		if (which == 'type') {
+			this.node.type = value;
 		}
 	}
 		
@@ -466,8 +514,45 @@ $(function() {
 		//gets run as code in NodeOp.connection
 		currentrow.data( 'node', this.node );
 
-		var inputDisplay = $("<h1>OSCILLOSCOPE</h1>");
-		currentrow.append(inputDisplay);
+		//here we make a dropdown menu... gotta figure out a good way to split it up
+		//without making too many assumptions...
+		var typeList = $("<div class='dropdown selected'></div>");
+		currentrow.append(typeList);
+		
+		var option = $("<li data-drawtype='oscilloscope'>OSCILLOSCOPE</li>");
+		typeList.append(option);
+		
+		option = $("<li data-drawtype=''>VISUALIZER</li>");
+		typeList.append(option);
+		
+		var typeButton = $("<h1 class='dropdown-call'>MODE:<br>OSCILLOSCOPE</h1>");
+		currentrow.append(typeButton);
+
+		typeList.children().each(function() {
+			$(this).click(function() {
+				var node = $(this).closest('.node-controls').data('rootObj');
+				node.update ('type', $(this).data('wavetype'));
+				typeButton.html('TYPE<br>' + $(this).html());
+				typeList.css('display','none');
+			});
+		});
+
+		typeList.mouseleave(function() {
+			$(this).css('display', 'none');
+			typeButton.css('display', 'block');
+		});
+
+		typeButton.click(function(e) {
+			console.log(typeButton.siblings('.dropdown'));
+			var dropdown = typeButton.siblings('.dropdown')
+			dropdown.css({
+				'display': 'block',
+			});
+			dropdown.offset({
+				'top' : e.pageY-4,
+				'left' : e.pageX-4,
+			});
+		});
 
 
 

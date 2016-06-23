@@ -37,6 +37,59 @@ body {
 	overflow: none;
 
 }
+
+div.dropdown {
+	display:none;
+	border: 1px solid white;
+	border-bottom: 1px solid slategrey;
+	border-radius: 2px;
+	background: aliceblue;
+	position: absolute;
+	top:0;
+	z-index:2;
+
+    box-shadow: 0px 0px 4px 0px black;
+    -webkit-box-shadow: 0px 1px 4px 0px black;
+    -moz-box-shadow: 0px 0px 1px 0px black;
+
+}
+
+.dropdown li {
+	text-align: left;
+	list-style: none;
+	color: slategrey;
+	font-size: 9px;
+	line-height: 9px;
+	letter-spacing: 1px;
+	padding: 4px 20px 2px 20px;
+	margin: 0;
+	border: none;
+	border-bottom:1px solid white;
+	font-weight: 300;
+
+
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+	cursor: default;
+}
+
+.dropdown-call:hover,
+.dropdown li:hover{
+	background:slategrey;
+	color: aliceblue;
+}
+
+.dropdown-call:active,
+.dropdown li:active{
+	background: deepskyblue;
+	color: white;
+}
+
 .close-button,
 .mini-button {
 	position: absolute;
@@ -156,7 +209,7 @@ body {
 	text-align: center;
 	font-size: 12px;
 	line-height: 9px;
-	letter-spacing: 2px;
+	letter-spacing: 1px;
 	padding: 0;
 	padding-top: 2px;
 	margin: 0;
