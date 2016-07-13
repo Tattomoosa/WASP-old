@@ -9,6 +9,7 @@
 
 		<script src='jquery-ui.js'></script>
 		<script src='webAudioEnvironment.js'></script>
+		<script src='jqueryuitouchpunch.js'></script>
 		<link rel='stylesheet' type='text/css' href='webAudioEnvironment.css'>
 		<link rel='stylesheet' type='text/css' href='jquery-ui.css'>
 
@@ -51,6 +52,12 @@
 			class='create-node-button'
 			data-nodetype='analyser'
 			value='Create Analyser Node'
+		>
+		<input
+			type='button'
+			class='create-node-button'
+			data-nodetype='biquad-filter'
+			value='Create Biquad Filter Node'
 		>
 			<div id='app-window'>
 				<div id='background-layer'></div>

@@ -13,7 +13,7 @@ $(function() {
 //nav.init
 //
 //this sets up a bunch of mouse interaction
-//that is not on nodes directly.
+//that is not on the nodes directly.
 //////////////////////////////////////////
 
 	var gameInitialization = {
@@ -199,6 +199,174 @@ $(function() {
 ////////////////////////////////////////////
 
 //lets define some objects nao. here's some nodes!
+
+	var BiquadFilterNodeGUI = function() {
+		this.node = audioContext.createBiquadFilter();
+
+		//create control window
+		this.controls = $("<div class='node-controls'></div>");
+		$( '#app-window' ).append(this.controls);
+		//we store the object in the window...
+		this.controls.data('rootObj', this);
+
+		NodeOp.createDragHandle(this.controls,'Biquad Filter');
+
+		//MAKE ROW IO
+		var currentrow = NodeOp.createRow(this.controls, 'io');
+		//gets run as code in NodeOp.connection
+		currentrow.data( 'node', this.node );
+
+		var ioDisplay = $("<h1>IN / OUT</h1>");
+		currentrow.append(ioDisplay);
+
+		//MAKE ROW: FREQUENCY
+		var currentrow = NodeOp.createRow(this.controls, 'frequency');
+		currentrow.data( 'node', this.node.frequency );
+		console.log (currentrow.data( 'node' ));
+
+		var display = $("<h1>FREQUENCY</h1>");
+		currentrow.append(display);
+
+		//ROW CONTROLS
+		//numerical input
+		currentrow.numberInput = $("<input type='number' value='20' step='1'>");
+		currentrow.append(currentrow.numberInput);
+
+		//we use parent() to get to object reference stored in its data and call a method
+		//and we have to wrap the call in an anonymous function so we can do some maths...
+		currentrow.numberInput.on ('keyup mouseup', function() {
+			$( this ).closest( '.node-controls' ).data( 'rootObj' ).update( 'frequency', $(this).val() );
+		});
+		//END ROW
+		//
+
+		//MAKE ROW: QUALITY FACTOR
+		var currentrow = NodeOp.createRow(this.controls, 'q');
+		currentrow.data( 'node', this.node.Q );
+		console.log (currentrow.data( 'node' ));
+
+		display = $("<h1>Q FACTOR</h1>");
+		currentrow.append(display);
+
+		//ROW CONTROLS
+		//numerical input
+		currentrow.numberInput = $("<input type='number' value='.2' step='.01' min='0' max='1.000'>");
+		currentrow.append(currentrow.numberInput);
+
+		//we use parent() to get to object reference stored in its data and call a method
+		//and we have to wrap the call in an anonymous function so we can do some maths...
+		currentrow.numberInput.on ('keyup mouseup', function() {
+			$( this ).closest( '.node-controls' ).data( 'rootObj' ).update( 'Q', $(this).val() );
+		});
+		//END ROW
+		//
+		//MAKE ROW: GAIN
+		var currentrow = NodeOp.createRow(this.controls, 'gain');
+		currentrow.data( 'node', this.node.gain );
+		console.log (currentrow.data( 'node' ));
+
+		display = $("<h1>GAIN</h1>");
+		currentrow.append(display);
+
+		//ROW CONTROLS
+		//numerical input
+		currentrow.numberInput = $("<input type='number' value='.2' step='.01'>");
+		currentrow.append(currentrow.numberInput);
+
+		//we use parent() to get to object reference stored in its data and call a method
+		//and we have to wrap the call in an anonymous function so we can do some maths...
+		currentrow.numberInput.on ('keyup mouseup', function() {
+			$( this ).closest( '.node-controls' ).data( 'rootObj' ).update( 'gain', $(this).val() );
+		});
+		//END ROW
+		//
+
+		//NEW ROW
+		//for biquad filter type
+		currentrow = NodeOp.createRow(this.controls, 'type'); //new row for wavetype
+		//rowDisplay = $("<h1>TYPE</h1>");
+		//currentrow.append(rowDisplay);
+
+		//here we make a dropdown menu... gotta figure out a good way to split it up
+		//without making too many assumptions...
+		var typeList = $("<div class='dropdown selected'></div>");
+		currentrow.append(typeList);
+		var option = $("<li data-filtertype='"+'"lowpass"'+"'>LOW&nbsp;PASS</li>");
+		typeList.append(option);
+		option = $("<li data-filtertype='"+'"highpass"'+"'>HIGH&nbsp;PASS</li>");
+		typeList.append(option);
+		option = $("<li data-filtertype='"+'"bandpass"'+"'>BAND&nbsp;PASS</li>");
+		typeList.append(option);
+		option = $("<li data-filtertype='"+'"lowshelf"'+"'>LOW&nbsp;SHELF</li>");
+		typeList.append(option);
+		option = $("<li data-filtertype='"+'"highshelf"'+"'>HIGH&nbsp;SHELF</li>");
+		typeList.append(option);
+		option = $("<li data-filtertype='"+'"peaking"'+"'>PEAKING</li>");
+		typeList.append(option);
+		option = $("<li data-filtertype='"+'"notch"'+"'>NOTCH</li>");
+		typeList.append(option);
+		option = $("<li data-filtertype='"+'"allpass"'+"'>ALL&nbsp;PASS</li>");
+		typeList.append(option);
+
+		var typeButton = $("<h1 class='dropdown-call'>TYPE<br>HIGH&nbsp;PASS</h1>");
+		currentrow.append(typeButton);
+
+		typeList.children().each(function() {
+			$(this).click(function() {
+				var node = $(this).closest('.node-controls').data('rootObj');
+				node.update ('type', $(this).data('filtertype'));
+				typeButton.html('TYPE<br>' + $(this).html());
+				typeList.css('display','none');
+			});
+		});
+
+		typeList.mouseleave(function() {
+			$(this).css('display', 'none');
+			typeButton.css('display', 'block');
+		});
+
+		typeButton.click(function(e) {
+			console.log(typeButton.siblings('.dropdown'));
+			var dropdown = typeButton.siblings('.dropdown')
+			dropdown.css({
+				'display': 'block',
+			});
+			dropdown.offset({
+				'top' : e.pageY-4,
+				'left' : e.pageX-4,
+			});
+		});
+		//done with dropdown!
+
+		//gets run as code in NodeOp.connection
+		currentrow.data( 'node', this.node.type ); //type = wavetype
+		console.log(this.node);
+
+		//END ROW
+
+		//this.update('frequency', 20);
+		//
+		//QUICK RESIZE
+		NodeOp.updateControlsSize (this.controls);
+	}
+
+	BiquadFilterNodeGUI.prototype.update = function(which, aValue) {
+		console.log(this.node);
+		if (which == 'frequency' ||
+			which == 'detune' ||
+		    which == 'Q' ||
+			which == 'gain') {
+			var stringCommand = 'this.node.' + which + '.value'; //this tells us which audioParam to deal with dynamically
+			console.log (eval (stringCommand + ' = ' + aValue) ); //eval evaluates a string as code!
+			eval (stringCommand + ' = ' + aValue);
+		}
+		if (which == 'type') {
+			var stringCommand = 'this.node.' + which; //this tells us which audioParam to deal with dynamically
+			console.log (eval (stringCommand + ' = ' + aValue) ); //eval evaluates a string as code!
+			eval (stringCommand + ' = ' + aValue);
+		}
+	}
+
 	var DelayNodeGUI = function() {
 		this.node = audioContext.createDelay(10);
 
@@ -241,7 +409,7 @@ $(function() {
 	}
 
 	DelayNodeGUI.prototype.update = function(which, aValue) {
-		if (which = 'delayTime') {
+		if (which == 'delayTime') {
 			var stringCommand = 'this.node.' + which + '.value'; //this tells us which audioParam to deal with dynamically
 			console.log (eval (stringCommand + ' = ' + aValue) ); //eval evaluates a string as code!
 			eval (stringCommand + ' = ' + aValue);
@@ -305,7 +473,7 @@ $(function() {
 	}
 
 	GainNodeGUI.prototype.update = function(which, aValue) {
-		if (which = 'gain') {
+		if (which == 'gain') {
 			var stringCommand = 'this.node.' + which + '.value'; //this tells us which audioParam to deal with dynamically
 			//console.log (eval (stringCommand + ' = ' + aValue) ); //eval evaluates a string as code!
 			eval (stringCommand + ' = ' + aValue);
@@ -479,7 +647,7 @@ $(function() {
 	};
 
 	StereoPannerNodeGUI.prototype.update = function(which, value) {
-		if (which = 'pan') {		
+		if (which == 'pan') {		
 			this.node.pan.value = value;
 			//this.controls.panDisplay.html( this.node.pan.value.toFixed(2) );
 		}
@@ -493,7 +661,7 @@ $(function() {
 		this.node.fftSize = 2048;
 		this.bufferLength = this.node.frequencyBinCount;
 		this.dataArray = new Uint8Array(this.bufferLength);
-		this.node.smoothingTimeConstant=0;
+		this.node.smoothingTimeConstant=1;
 		//
 
 		//create control window
@@ -505,7 +673,7 @@ $(function() {
 		NodeOp.createDragHandle(this.controls,'Analyser');
 		NodeOp.createResizeHandle(this.controls);
 
-
+		this.drawType = 'oscilloscope';
 
 
 		//NEW ROW
@@ -522,17 +690,18 @@ $(function() {
 		var option = $("<li data-drawtype='oscilloscope'>OSCILLOSCOPE</li>");
 		typeList.append(option);
 		
-		option = $("<li data-drawtype=''>VISUALIZER</li>");
+		option = $("<li data-drawtype='frequencybar'>FREQUENCY BAR</li>");
 		typeList.append(option);
 		
-		var typeButton = $("<h1 class='dropdown-call'>MODE:<br>OSCILLOSCOPE</h1>");
+		var typeButton = $("<h1 class='dropdown-call'>MODE<br>OSCILLOSCOPE</h1>");
 		currentrow.append(typeButton);
 
 		typeList.children().each(function() {
 			$(this).click(function() {
 				var node = $(this).closest('.node-controls').data('rootObj');
-				node.update ('type', $(this).data('wavetype'));
-				typeButton.html('TYPE<br>' + $(this).html());
+				node.update ('drawtype', $(this).data('drawtype'));
+				//node.update ('type', $(this).data('wavetype'));
+				typeButton.html('MODE<br>' + $(this).html());
 				typeList.css('display','none');
 			});
 		});
@@ -556,14 +725,14 @@ $(function() {
 
 
 
-		//END ROW
-		//
+		//END ROW	
+
 		//NEW ROW
 
 
 		//temp
 		var canvas = document.createElement('canvas');
-		canvas.width = 80;
+		canvas.width = 135;
 		canvas.height = 45;
 		$(canvas).addClass('noselect');
 		$(canvas).css({
@@ -579,12 +748,29 @@ $(function() {
 		NodeOp.updateControlsSize (this.controls);
 	};
 
+	AnalyserNodeGUI.prototype.update = function(which, value) {	
+		if (which == 'drawtype') {		
+			this.drawType = value;
+			//this.controls.panDisplay.html( this.node.pan.value.toFixed(2) );
+		}
+
+	};
+
 	AnalyserNodeGUI.prototype.updateDraw = function() {
 		var which = this;
+		//currently this ish is straight up stolen from the MDN!! Could use some
+		//spicing up but make sure to give the actual person credit!
 		//setInterval (function() {
+		if (which.drawType == 'oscilloscope') {
+			//oscilloscope works ok but these parameters should be exposed....
+			which.node.fftSize = 2048; 
+			which.bufferLength = which.node.frequencyBinCount;
+			which.dataArray = new Uint8Array(which.bufferLength);
+			which.node.smoothingTimeConstant=0;
+			//ok now that we're done re-doing shit we don't really need...
 			requestAnimationFrame(function() {
 				which.node.getByteTimeDomainData(which.dataArray);
-				which.vis.clearRect(0,0,which.vis.width, which.vis.height);
+				which.vis.clearRect(0,0,which.canvas.width, which.canvas.height);
 				which.vis.fillStyle = 'hsl(210, 29%, 18%)';
 				which.vis.fillRect(0, 0, which.canvas.width,which.canvas.height);
 				
@@ -594,7 +780,7 @@ $(function() {
 				var sliceWidth = which.canvas.width * 1.0 / (which.bufferLength);
 				var x = 0;
 				var y = 0;
-				for(var i = 0; i < which.bufferLength; i++) {
+				for(var i = 0; i < which.bufferLength + 1; i++) {
 			   
 					var v = which.dataArray[i] / 128.0;
 					y = v * which.canvas.height/2;
@@ -618,8 +804,41 @@ $(function() {
 
 				which.updateDraw();
 			});
-		//}, 0) ;
-	}
+		} else {
+			if (which.drawType == 'frequencybar') {
+				which.node.fftSize = 2048;
+				which.bufferLength = which.node.frequencyBinCount;
+				which.dataArray = new Uint8Array(which.bufferLength);
+				which.node.smoothingTimeConstant=0;
+				requestAnimationFrame(function() {
+					which.node.getByteFrequencyData(which.dataArray);
+					which.vis.clearRect(0,0,which.canvas.width, which.canvas.height);
+					which.vis.fillStyle = 'hsl(210, 29%, 18%)';
+					which.vis.fillRect(0, 0, which.canvas.width,which.canvas.height);
+
+
+					var barWidth = (which.canvas.width / which.bufferLength);
+					var barHeightPercent;
+					var barHeight;
+					var x = 0;
+
+					for(var i = 0; i < which.bufferLength; i++) {
+						barHeightPercent = which.dataArray[i]/256;
+						barHeight = which.canvas.height * barHeightPercent;
+
+						//barHeight = which.dataArray[i]/2;
+
+						//make color match nicely
+						which.vis.fillStyle = 'rgb(' + 255 + ',255,255)';
+						which.vis.fillRect(x, which.canvas.height - barHeight/2, x, barHeight);
+
+						x += barWidth;
+					};
+					which.updateDraw();
+				});
+			};
+		};
+	};
 
 
 	//makesa sound come outcha speakas
@@ -1273,11 +1492,19 @@ $(function() {
 			});
 			controls.on('mousedown',function(e) {
 				if (e.which == 1) { //left mouse button
-					if (!e.shiftKey) {
+					if (e.shiftKey) {
+						if (controls.hasClass('selected')) {
+							controls.removeClass('selected');
+						} else {
+							controls.addClass('selected');
+						};
+					} else {
 						NodeOp.removeSelected();
-					}
-					controls.addClass('selected');
+						controls.addClass('selected');
+					};
 				};
+			});
+			controls.on('click',function(e) {
 			});
 			controls.children( ' .drag-handle ' ).dblclick(function() {
 				console.log ('double click!');
@@ -1327,6 +1554,7 @@ $(function() {
 				//if ($(this).height() < displace) {
 					$(this).css({	
 						'min-height' : displace + vMargin*2,
+						'height' : 20,
 					});
 				//};
 			});
@@ -1371,6 +1599,13 @@ $(function() {
 					output = false;
 
 					break;
+
+				case ('q') :
+					symbol = 'Q';
+					output = false;
+
+					break;
+
 				case ('data') :
 					
 					input = false;
@@ -1458,6 +1693,11 @@ $(function() {
 			case ('analyser'):
 				node = new AnalyserNodeGUI();
 				break;
+
+			case ('biquad-filter'):
+				node = new BiquadFilterNodeGUI();
+				break;
+
 			default:
 
 				console.log ('ERROR: Node kind not defined!');
