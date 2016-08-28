@@ -1,4 +1,4 @@
-                   GNU GENERAL PUBLIC LICENSE
+                    GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
  Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
@@ -672,18 +672,3 @@ may consider it more useful to permit linking proprietary applications with
 the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <http://www.gnu.org/philosophy/why-not-lgpl.html>.
-Copy license text to clipboard
-How to apply this license
-
-Create a text file (typically named LICENSE or LICENSE.txt) in the root of your source code and copy the text of the license into the file.
-
-Note: The Free Software Foundation recommends taking the additional step of adding a boilerplate notice to the top of each file. The boilerplate can be found at the end of the license.
-
-Optional: Add GPL-3.0+ (or GPL-3.0 to disallow future versions) to your project's package description, if applicable (e.g., Node.js, Ruby, and Rust). This will ensure the license is displayed in package directories.
-
- Source
-Who's using this license?
-
-Bash
-GIMP
-Privacy Badger
